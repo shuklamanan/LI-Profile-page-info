@@ -4,10 +4,10 @@
   "description": "This project is responsible for LinkedIn public profile page data like experience, education, skills, headline...",
   "main": "index.js",
   "scripts": {
-    "dev": "tsx --env-file=.env watch src/index.ts",
+    "dev": "tsx watch src/index.ts",
     "clean": "rimraf dist",
     "build": "npm run clean && tsc",
-    "start": "node --env-file=.env dist/index.js",
+    "start": "node dist/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [],
