@@ -51,6 +51,9 @@ export class LinkedInClient {
     console.log(`Initiating direct GET request to LinkedIn Dash API: ${url}`);
 
     try {
+
+      console.log("headers: ", JSON.stringify(this.headers));
+
       const response = await fetch(url, {
         method: 'GET',
         headers: this.headers,
