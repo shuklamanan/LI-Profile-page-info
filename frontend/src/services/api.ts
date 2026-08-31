@@ -1,5 +1,8 @@
 import type { HealthResponse, ProfileResponse } from '../types/profile';
 
+// Supports deployed backend URL via environment variable VITE_API_URL
+const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+
 export interface HealthCheckResult {
   isHealthy: boolean;
   latencyMs: number;
@@ -11,7 +14,8 @@ export interface HealthCheckResult {
 export async function checkHealth(): Promise<HealthCheckResult> {
   const start = performance.now();
   try {
-    const response = await fetch('/health', {
+    const url = `${API_BASE_URL}/health`;
+    const response = await fetch(url, {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
@@ -48,7 +52,8 @@ export async function checkHealth(): Promise<HealthCheckResult> {
 }
 
 export async function fetchProfile(profileUrl: string): Promise<ProfileResponse> {
-  const response = await fetch('/api/v1/profiles', {
+  const url = `${API_BASE_URL}/api/v1/profiles`;
+  const response = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

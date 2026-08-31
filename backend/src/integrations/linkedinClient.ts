@@ -48,7 +48,11 @@ export class LinkedInClient {
   public async getProfileData(identity: ProfileIdentity): Promise<any> {
     const url = `https://www.linkedin.com/voyager/api/identity/dash/profiles?q=memberIdentity&memberIdentity=${identity.slug}`;
 
-    console.log(`Initiating direct GET request to LinkedIn Dash API: ${url}`);
+    if (!settings.linkedinSessionCookie || !settings.linkedinCsrfToken) {
+      throw new UpstreamAuthenticationError(
+        'LinkedIn credentials (COOKIE and CSRF_TOKEN) are missing in backend .env. Please configure a valid li_at session cookie and JSESSIONID token.'
+      );
+    }
 
     try {
 
