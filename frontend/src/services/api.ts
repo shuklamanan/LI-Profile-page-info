@@ -1,7 +1,7 @@
 import type { HealthResponse, ProfileResponse } from '../types/profile';
 
 // Supports deployed backend URL via environment variable VITE_API_URL
-const API_BASE_URL = (import.meta.env.VITE_API_URL || '').replace(/\/$/, '');
+const API_BASE_URL = (import.meta.env.VITE_API_URL || 'http://localhost:3000').replace(/\/$/, '');
 
 export interface HealthCheckResult {
   isHealthy: boolean;

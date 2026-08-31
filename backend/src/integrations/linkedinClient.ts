@@ -13,24 +13,26 @@ export interface ProfileIdentity {
 }
 
 export class LinkedInClient {
-  private headers: Record<string, string>;
+  private getHeaders(): Record<string, string> {
+    const rawCookie = (settings.linkedinSessionCookie || '').replace(/^"""|"""$/g, '').trim();
+    const rawCsrf = (settings.linkedinCsrfToken || '').replace(/^"|"$/g, '').trim();
 
-  constructor() {
-    let cookieHeader = settings.linkedinSessionCookie;
-
-    cookieHeader = cookieHeader.replace(/^"""|"""$/g, '').trim();
-    const csrfToken = settings.linkedinCsrfToken.replace(/^"|"$/g, '').trim();
-
-    if (cookieHeader && !cookieHeader.includes('li_at=')) {
-      cookieHeader = `li_at=${cookieHeader}; JSESSIONID="${csrfToken}"`;
+    let fullCookie = rawCookie;
+    if (fullCookie) {
+      if (!fullCookie.includes('li_at=')) {
+        fullCookie = `li_at=${fullCookie}`;
+      }
+      if (rawCsrf && !fullCookie.includes('JSESSIONID=')) {
+        fullCookie += `; JSESSIONID="${rawCsrf}"`;
+      }
     }
 
-    this.headers = {
+    return {
       'User-Agent': settings.linkedinUserAgent,
       'Accept': 'application/json',
       'Accept-Language': 'en-US,en;q=0.9',
-      'Cookie': cookieHeader,
-      'Csrf-Token': csrfToken,
+      'Cookie': fullCookie,
+      'Csrf-Token': rawCsrf,
       'X-RestLi-Protocol-Version': '2.0.0',
     };
   }
@@ -54,18 +56,19 @@ export class LinkedInClient {
       );
     }
 
+    const headers = this.getHeaders();
+    console.log(`Initiating direct GET request to LinkedIn Dash API: ${url}`);
+    console.log(`Headers: Cookie present: ${Boolean(headers.Cookie)}, Csrf-Token present: ${Boolean(headers['Csrf-Token'])}`);
+
     try {
-
-      console.log("headers: ", JSON.stringify(this.headers));
-
       const response = await fetch(url, {
         method: 'GET',
-        headers: this.headers,
+        headers,
         redirect: 'manual'
       });
 
       if (response.status === 302 || response.status === 301) {
-        throw new UpstreamAuthenticationError(`LinkedIn redirected the request. Your session cookie (li_at/JSESSIONID) is likely invalid or expired. ${JSON.stringify(response)}`);
+        throw new UpstreamAuthenticationError(`LinkedIn redirected the request. Your session cookie (li_at/JSESSIONID) is likely invalid or expired. Response status: ${response.status}`);
       }
 
       if (response.status === 401 || response.status === 403) {
